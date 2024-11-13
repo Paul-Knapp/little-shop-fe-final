@@ -131,8 +131,8 @@ h3 {
   color: var(--blue);
 }
 
-/* MERCHANT + ITEM CARDS */
-.merchant, .item {
+/* MERCHANT + ITEM CARDS +COUPON CARDS*/
+.merchant, .item, .coupon {
   align-items: center;
   background-color: #fff;
   border-radius: 8px;

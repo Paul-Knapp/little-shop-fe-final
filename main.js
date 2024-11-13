@@ -36,6 +36,7 @@ submitMerchantButton.addEventListener('click', (event) => {
 //Global variables
 let merchants;
 let items;
+let coupons;
 
 //Page load data fetching
 Promise.all([fetchData('merchants'), fetchData('items')])
@@ -233,23 +234,37 @@ function displayMerchantItems(event) {
 }
 
 function getMerchantCoupons(event) {
+  addNewButton.classList.add('hidden')
   let merchantId = event.target.closest("article").id.split('-')[1]
   console.log("Merchant ID:", merchantId)
-
-  fetchData(`merchants/${merchantId}`)
+  showingText.innerText = `Showing: All coupons for Merchant ${merchantId}`
+  fetchData(`merchants/${merchantId}/coupons`)
   .then(couponData => {
     console.log("Coupon data from fetch:", couponData)
     displayMerchantCoupons(couponData);
   })
 }
 
-function displayMerchantCoupons(coupons) {
-  show([couponsView])
-  hide([merchantsView, itemsView])
+function displayMerchantCoupons(couponData) {
+  show([couponsView]);
+  hide([merchantsView, itemsView]);
+    
+  couponsView.innerHTML = `<h2>Coupons</h2>`;
 
-  couponsView.innerHTML = `
-    <p>Coupon data will go here.</p>
-  `
+  if (!couponData || couponData.length === 0) {
+    couponsView.innerHTML += `<p>No coupons available</p>`;
+  } else {
+    couponData.data.forEach(coupon => {
+      couponsView.innerHTML += `
+        <article class="coupon" id="coupon-${coupon.id}">
+          <h3>${coupon.attributes.name}</h3>
+          <p>Code: ${coupon.attributes.coupon_code}</p>
+          <p>Discount: ${findValue(coupon.attributes)}</p>
+          <p>Status: ${coupon.attributes.status}</p>
+        </article>
+      `;
+    });
+  }
 }
 
 //Helper Functions
@@ -290,5 +305,14 @@ function findMerchant(id) {
       foundMerchant = merchants[i]
       return foundMerchant
     }
+  }
+}
+
+function findValue(coupon) {
+  if (coupon.value < 1) {
+    return `% ${coupon.value*100}`  
+  }
+  else {
+    return `$${coupon.value}`
   }
 }
